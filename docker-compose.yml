@@ -1,0 +1,21 @@
+services:
+  n8n:
+    build:
+      context: .
+      dockerfile: Dockerfile.n8n-medusa
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_PORT=5678
+      - NODE_ENV=production
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-UTC}
+    volumes:
+      - n8n_data:/home/node/.n8n
+      # Mount a directory for smart contracts or medusa configs if needed
+      - ./contracts:/home/node/contracts:ro
+    # Add capabilities if medusa needs to interact with system resources
+    cap_add:
+      - SYS_PTRACE
+
+volumes:
+  n8n_data:
