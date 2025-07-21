@@ -1,21 +1,29 @@
+version: '3.8'
+
 services:
   n8n:
     build:
       context: .
-      dockerfile: Dockerfile.n8n-medusa
-    ports:
-      - "5678:5678"
+      dockerfile: Dockerfile
+    image: n8n-medusa:latest
+    container_name: n8n-medusa
+    restart: always
     environment:
-      - N8N_PORT=5678
-      - NODE_ENV=production
-      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-UTC}
+      - TZ=Europe/Berlin
     volumes:
       - n8n_data:/home/node/.n8n
-      # Mount a directory for smart contracts or medusa configs if needed
-      - ./contracts:/home/node/contracts:ro
-    # Add capabilities if medusa needs to interact with system resources
-    cap_add:
-      - SYS_PTRACE
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
 
 volumes:
   n8n_data:
+  caddy_data:
