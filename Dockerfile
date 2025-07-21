@@ -36,21 +36,13 @@ RUN apk add --no-cache \
     git \
     jq \
     python3 \
-    bash
+    bash \
+    nodejs \
+    yarn
 
 # Include python tools from builder
 COPY --from=python-builder /venv /venv
 ENV PATH="$PATH:/venv/bin"
-
-# Include JS package managers (for medusa's node requirements)
-RUN curl -fsSL https://raw.githubusercontent.com/tj/n/v10.1.0/bin/n -o n && \
-    if [ ! "a09599719bd38af5054f87b8f8d3e45150f00b7b5675323aa36b36d324d087b9  n" = "$(sha256sum n)" ]; then \
-        echo "N installer does not match expected checksum! exiting"; \
-        exit 1; \
-    fi && \
-    cat n | bash -s lts && rm n && \
-    npm install -g n yarn && \
-    n stable --cleanup && n prune && npm --force cache clean
 
 # Include medusa binary
 COPY --chown=root:root --from=medusa-builder /usr/local/bin/medusa /usr/local/bin/medusa
@@ -61,4 +53,6 @@ USER node
 # Verify installations
 RUN medusa --version && \
     python3 --version && \
-    slither --version
+    slither --version && \
+    node --version && \
+    yarn --version
